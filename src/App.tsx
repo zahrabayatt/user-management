@@ -18,20 +18,22 @@ import {
 } from "@radix-ui/react-icons";
 import { DeleteUserDialog } from "./components/DeleteUserDialog";
 import { IUser } from "./models/user";
+import useUserQueryStore from "./store/useUserQueryStore";
 
 function App() {
   const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchUsers = (query = "") => {
+  const { userQuery, setSearchQuery, setSortDirection } = useUserQueryStore();
+
+  const fetchUsers = () => {
     setLoading(true);
-    const searchParam = query ? `username=${query}` : "";
-    // Always include sort parameter since we want default sorting
-    const sortParam = `sortBy=age&order=${sortDirection}`;
+    const searchParam = userQuery.searchQuery
+      ? `username=${userQuery.searchQuery}`
+      : "";
+    const sortParam = `sortBy=age&order=${userQuery.sortDirection}`;
     const queryParams = [searchParam, sortParam].filter(Boolean).join("&");
     const url = `https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users?${queryParams}`;
 
@@ -39,7 +41,7 @@ function App() {
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            return []; // Return empty array for no results
+            return [];
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -48,7 +50,7 @@ function App() {
       .then((data) => {
         setUsers(data ?? []);
         setLoading(false);
-        setError(""); // Clear any previous errors
+        setError("");
       })
       .catch((err) => {
         setError("Failed to fetch users. Error: " + err.message);
@@ -57,9 +59,8 @@ function App() {
       });
   };
 
-  // Update handleSort to use the API sorting
   const handleSort = () => {
-    const newDirection = sortDirection === "asc" ? "desc" : "asc";
+    const newDirection = userQuery.sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
   };
 
@@ -87,15 +88,11 @@ function App() {
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      fetchUsers(searchQuery);
+      fetchUsers();
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    fetchUsers(searchQuery);
-  }, [sortDirection]);
+  }, [userQuery]);
 
   if (error)
     return <Text className="text-center text-red-500 p-4">{error}</Text>;
@@ -105,12 +102,12 @@ function App() {
       <Flex direction="column" gap="4">
         <Flex justify="between" align="center">
           <Heading size="6">Users List</Heading>
-          <CreateUserDialog onUserCreated={() => fetchUsers(searchQuery)} />
+          <CreateUserDialog onUserCreated={() => fetchUsers()} />
         </Flex>
 
         <TextField.Root
           placeholder="Search by username..."
-          value={searchQuery}
+          value={userQuery.searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full max-w-xs"
         >
@@ -141,7 +138,7 @@ function App() {
                   <Flex align="center" justify="center" gap="2">
                     Age
                     <IconButton variant="ghost" onClick={handleSort}>
-                      {sortDirection === "asc" ? (
+                      {userQuery.sortDirection === "asc" ? (
                         <CaretUpIcon />
                       ) : (
                         <CaretDownIcon />
@@ -170,7 +167,7 @@ function App() {
                       className="py-8 gap-2"
                     >
                       <Text className="text-gray-500">No users found</Text>
-                      {searchQuery && (
+                      {userQuery.searchQuery && (
                         <Text className="text-sm text-gray-400">
                           Try adjusting your search query
                         </Text>
@@ -203,7 +200,7 @@ function App() {
                         <DeleteUserDialog
                           userId={user.id}
                           userName={`${user.firstName} ${user.lastName}`}
-                          onDelete={() => fetchUsers(searchQuery)}
+                          onDelete={() => fetchUsers()}
                         />
                       </Flex>
                     </Table.Cell>
