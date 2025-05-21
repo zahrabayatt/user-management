@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Container, Flex, Heading, Table, Text, IconButton } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import { CreateUserDialog } from './components/CreateUserDialog'
-import { CaretUpIcon, CaretDownIcon } from '@radix-ui/react-icons'
+import { CaretUpIcon, CaretDownIcon, DragHandleDots2Icon } from '@radix-ui/react-icons'
 
 interface User {
   id: string;
@@ -17,6 +17,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
   const fetchUsers = () => {
     setLoading(true)
@@ -44,6 +45,28 @@ function App() {
     })
 
     setUsers(sortedUsers)
+  }
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex === null) return
+
+    const items = [...users]
+    const draggedItem = items[draggedIndex]
+    items.splice(draggedIndex, 1)
+    items.splice(index, 0, draggedItem)
+
+    setUsers(items)
+    setDraggedIndex(index)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
   }
 
   useEffect(() => {
@@ -75,9 +98,21 @@ function App() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {users.map(user => (
-            <Table.Row key={user.id} className="hover:bg-gray-50">
-              <Table.Cell>{user.firstName} {user.lastName}</Table.Cell>
+          {users.map((user, index) => (
+            <Table.Row
+              key={user.id}
+              className={`hover:bg-gray-50 ${draggedIndex === index ? 'bg-gray-100' : ''}`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragEnd={handleDragEnd}
+            >
+              <Table.Cell>
+                <Flex align="center" gap="2">
+                  <DragHandleDots2Icon className="text-gray-400 cursor-move" />
+                  {user.firstName} {user.lastName}
+                </Flex>
+              </Table.Cell>
               <Table.Cell>{user.username}</Table.Cell>
               <Table.Cell className="text-center">{user.age}</Table.Cell>
             </Table.Row>
