@@ -16,6 +16,7 @@ import {
   DragHandleDots2Icon,
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
+import { DeleteUserDialog } from "./components/DeleteUserDialog";
 
 interface User {
   id: string;
@@ -210,7 +211,16 @@ function App() {
                       </Flex>
                     </Table.Cell>
                     <Table.Cell>{user.username}</Table.Cell>
-                    <Table.Cell className="text-center">{user.age}</Table.Cell>
+                    <Table.Cell>
+                      <Flex align="center" justify="between" gap="2">
+                        <Text className="text-center flex-1">{user.age}</Text>
+                        <DeleteUserDialog
+                          userId={user.id}
+                          userName={`${user.firstName} ${user.lastName}`}
+                          onDelete={() => fetchUsers(searchQuery)}
+                        />
+                      </Flex>
+                    </Table.Cell>
                   </Table.Row>
                 ))
               )}
