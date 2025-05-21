@@ -17,31 +17,25 @@ import {
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons";
 import { DeleteUserDialog } from "./components/DeleteUserDialog";
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  username: string;
-  age: number;
-}
+import { IUser } from "./models/user";
 
 function App() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | null>(
-    null
-  );
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchUsers = (query = "") => {
     setLoading(true);
-    const searchParam = query ? `?username=${query}` : "";
-    fetch(
-      `https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users${searchParam}`
-    )
+    const searchParam = query ? `username=${query}` : "";
+    // Always include sort parameter since we want default sorting
+    const sortParam = `sortBy=age&order=${sortDirection}`;
+    const queryParams = [searchParam, sortParam].filter(Boolean).join("&");
+    const url = `https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users?${queryParams}`;
+
+    fetch(url)
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
@@ -58,23 +52,15 @@ function App() {
       })
       .catch((err) => {
         setError("Failed to fetch users. Error: " + err.message);
-        setUsers([]); // Clear users on error
+        setUsers([]);
         setLoading(false);
       });
   };
 
+  // Update handleSort to use the API sorting
   const handleSort = () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
-
-    const sortedUsers = [...users].sort((a, b) => {
-      if (newDirection === "asc") {
-        return a.age - b.age;
-      }
-      return b.age - a.age;
-    });
-
-    setUsers(sortedUsers);
   };
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -108,8 +94,8 @@ function App() {
   }, [searchQuery]);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(searchQuery);
+  }, [sortDirection]);
 
   if (error)
     return <Text className="text-center text-red-500 p-4">{error}</Text>;
