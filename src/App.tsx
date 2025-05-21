@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Container, Flex, Heading, Table, Text } from '@radix-ui/themes'
+import { Container, Flex, Heading, Table, Text, IconButton } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import { CreateUserDialog } from './components/CreateUserDialog';
+import { CreateUserDialog } from './components/CreateUserDialog'
+import { CaretUpIcon, CaretDownIcon } from '@radix-ui/react-icons'
 
 interface User {
   id: string;
@@ -15,6 +16,7 @@ function App() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null)
 
   const fetchUsers = () => {
     setLoading(true)
@@ -28,6 +30,20 @@ function App() {
         setError('Failed to fetch users. Error:' + err.message)
         setLoading(false)
       })
+  }
+
+  const handleSort = () => {
+    const newDirection = sortDirection === 'asc' ? 'desc' : 'asc'
+    setSortDirection(newDirection)
+
+    const sortedUsers = [...users].sort((a, b) => {
+      if (newDirection === 'asc') {
+        return a.age - b.age
+      }
+      return b.age - a.age
+    })
+
+    setUsers(sortedUsers)
   }
 
   useEffect(() => {
@@ -48,7 +64,14 @@ function App() {
           <Table.Row>
             <Table.ColumnHeaderCell className="font-semibold">Full Name</Table.ColumnHeaderCell>
             <Table.ColumnHeaderCell className="font-semibold">Username</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell className="font-semibold text-center">Age</Table.ColumnHeaderCell>
+            <Table.ColumnHeaderCell className="font-semibold text-center">
+              <Flex align="center" justify="center" gap="2">
+                Age
+                <IconButton variant="ghost" onClick={handleSort}>
+                  {sortDirection === 'asc' ? <CaretUpIcon /> : <CaretDownIcon />}
+                </IconButton>
+              </Flex>
+            </Table.ColumnHeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
