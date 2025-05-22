@@ -1,17 +1,16 @@
-import { AlertDialog, Flex, Button, IconButton } from "@radix-ui/themes";
+import { FC } from "react";
+import { AlertDialog, Button, Flex, IconButton } from "@radix-ui/themes";
 import { TrashIcon } from "@radix-ui/react-icons";
+import useUserStore from "../store/useUserStore";
 
 interface DeleteUserDialogProps {
   userId: string;
   userName: string;
-  onDelete: () => void;
 }
 
-export function DeleteUserDialog({
-  userId,
-  userName,
-  onDelete,
-}: DeleteUserDialogProps) {
+const DeleteUserDialog: FC<DeleteUserDialogProps> = ({ userId, userName }) => {
+  const deleteUser = useUserStore((state) => state.deleteUser);
+
   const handleDelete = async () => {
     try {
       const response = await fetch(
@@ -23,7 +22,8 @@ export function DeleteUserDialog({
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      onDelete();
+
+      deleteUser(userId);
     } catch (error) {
       console.error("Failed to delete user:", error);
     }
@@ -57,4 +57,6 @@ export function DeleteUserDialog({
       </AlertDialog.Content>
     </AlertDialog.Root>
   );
-}
+};
+
+export default DeleteUserDialog;
