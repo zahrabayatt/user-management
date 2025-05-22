@@ -39,7 +39,7 @@ A modern user management system built with React and TypeScript, featuring real-
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/user-management.git
+git clone https://github.com/zahrabayatt/user-management.git
 cd user-management
 ```
 
