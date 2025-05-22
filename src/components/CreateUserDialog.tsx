@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import useUserStore from "../store/useUserStore";
+import usersService from "../services/users-service";
 
 const userSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -12,12 +13,12 @@ const userSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters")
     .refine(async (username) => {
-      const response = await fetch(
-        `https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users?username=${username}`
-      );
-      if (!response.ok) return true;
-      const users = await response.json();
-      return users.length === 0;
+      try {
+        const exists = await usersService.checkUsername(username);
+        return !exists;
+      } catch {
+        return true;
+      }
     }, "Username is already taken"),
   age: z
     .number()
@@ -48,24 +49,9 @@ const CreateUserDialog: FC = () => {
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      const response = await fetch(
-        "https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-
-      if (response.ok) {
-        const newUser = await response.json();
-        addUser(newUser);
-        setIsOpen(false);
-      } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      const newUser = await usersService.create(data);
+      addUser(newUser);
+      setIsOpen(false);
     } catch (error) {
       console.error("Failed to create user:", error);
     }

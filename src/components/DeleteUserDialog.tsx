@@ -2,6 +2,7 @@ import { FC } from "react";
 import { AlertDialog, Button, Flex, IconButton } from "@radix-ui/themes";
 import { TrashIcon } from "@radix-ui/react-icons";
 import useUserStore from "../store/useUserStore";
+import usersService from "../services/users-service";
 
 interface DeleteUserDialogProps {
   userId: string;
@@ -13,16 +14,7 @@ const DeleteUserDialog: FC<DeleteUserDialogProps> = ({ userId, userName }) => {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(
-        `https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users/${userId}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      await usersService.delete(userId);
       deleteUser(userId);
     } catch (error) {
       console.error("Failed to delete user:", error);
