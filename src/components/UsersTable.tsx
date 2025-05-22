@@ -12,8 +12,9 @@ import useUsers from "../hooks/useUsers";
 import DeleteUserDialog from "./DeleteUserDialog";
 
 export const UsersTable: FC = () => {
-  const { loading, error } = useUsers();
+  const { loading } = useUsers();
   const users = useUserStore((state) => state.users);
+  const sortUsers = useUserStore((state) => state.sortUsers);
   const { userQuery, setSortDirection } = useUserQueryStore();
   const { draggedIndex, handleDragStart, handleDragOver, handleDragEnd } =
     useDragAndDrop();
@@ -21,6 +22,7 @@ export const UsersTable: FC = () => {
   const handleSort = () => {
     const newDirection = userQuery.sortDirection === "asc" ? "desc" : "asc";
     setSortDirection(newDirection);
+    sortUsers(newDirection);
   };
 
   if (loading) {

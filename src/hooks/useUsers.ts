@@ -42,7 +42,7 @@ const useUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [userQuery]);
+  }, [userQuery.searchQuery]);
 
   return { loading, error, refetch: fetchUsers };
 };

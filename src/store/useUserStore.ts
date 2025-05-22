@@ -8,6 +8,7 @@ interface UserStore {
   deleteUser: (userId: string) => void;
   updateUser: (userId: string, updatedUser: Partial<User>) => void;
   reorderUsers: (fromIndex: number, toIndex: number) => void;
+  sortUsers: (direction: "asc" | "desc") => void;
 }
 
 const useUserStore = create<UserStore>((set) => ({
@@ -24,13 +25,22 @@ const useUserStore = create<UserStore>((set) => ({
         user.id === userId ? { ...user, ...updatedUser } : user
       ),
     })),
-  reorderUsers: (fromIndex: number, toIndex: number) =>
+  reorderUsers: (fromIndex, toIndex) =>
     set((state) => {
       const items = [...state.users];
       const [draggedItem] = items.splice(fromIndex, 1);
       items.splice(toIndex, 0, draggedItem);
       return { users: items };
     }),
+  sortUsers: (direction) =>
+    set((state) => ({
+      users: [...state.users].sort((a, b) => {
+        if (direction === "asc") {
+          return a.age - b.age;
+        }
+        return b.age - a.age;
+      }),
+    })),
 }));
 
 export default useUserStore;
