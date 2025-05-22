@@ -1,26 +1,52 @@
 import { FC, useState } from "react";
-import { Button, Dialog, Flex, TextField } from "@radix-ui/themes";
+import { Button, Dialog, Flex, TextField, Text } from "@radix-ui/themes";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import useUserStore from "../store/useUserStore";
 
-const initialFormData = {
-  firstName: "",
-  lastName: "",
-  username: "",
-  age: "",
-};
+const userSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .refine(async (username) => {
+      const response = await fetch(
+        `https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users?username=${username}`
+      );
+      if (!response.ok) return true;
+      const users = await response.json();
+      return users.length === 0;
+    }, "Username is already taken"),
+  age: z
+    .number()
+    .min(18, "Must be at least 18")
+    .max(100, "Must be less than 100"),
+});
+
+type UserFormInputs = z.input<typeof userSchema>;
+type UserFormData = z.output<typeof userSchema>;
 
 const CreateUserDialog: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState(initialFormData);
   const addUser = useUserStore((state) => state.addUser);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UserFormInputs>({
+    resolver: zodResolver(userSchema),
+  });
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (open) setFormData(initialFormData);
+    if (open) reset();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: UserFormData) => {
     try {
       const response = await fetch(
         "https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1/users",
@@ -29,7 +55,7 @@ const CreateUserDialog: FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ ...formData, age: Number(formData.age) }),
+          body: JSON.stringify(data),
         }
       );
 
@@ -53,37 +79,46 @@ const CreateUserDialog: FC = () => {
 
       <Dialog.Content style={{ maxWidth: 450 }}>
         <Dialog.Title>Create New User</Dialog.Title>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Flex direction="column" gap="3">
             <TextField.Root
               placeholder="First Name"
-              value={formData.firstName}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, firstName: e.target.value }))
-              }
+              {...register("firstName")}
             />
-            <TextField.Root
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, lastName: e.target.value }))
-              }
-            />
+            {errors.firstName && (
+              <Text size="1" color="red" as="p">
+                {errors.firstName.message}
+              </Text>
+            )}
+
+            <TextField.Root placeholder="Last Name" {...register("lastName")} />
+            {errors.lastName && (
+              <Text size="1" color="red" as="p">
+                {errors.lastName.message}
+              </Text>
+            )}
+
             <TextField.Root
               placeholder="Username"
-              value={formData.username}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, username: e.target.value }))
-              }
+              {...register("username")} // Remove the validate option
             />
+            {errors.username && (
+              <Text size="1" color="red" as="p">
+                {errors.username.message}
+              </Text>
+            )}
+
             <TextField.Root
               type="number"
               placeholder="Age"
-              value={formData.age}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, age: e.target.value }))
-              }
+              {...register("age", { valueAsNumber: true })}
             />
+            {errors.age && (
+              <Text size="1" color="red" as="p">
+                {errors.age.message}
+              </Text>
+            )}
+
             <Flex gap="3" mt="4" justify="end">
               <Dialog.Close>
                 <Button variant="soft" color="gray">
