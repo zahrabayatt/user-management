@@ -14,7 +14,6 @@ const CreateUserDialog: FC = () => {
   const [formData, setFormData] = useState(initialFormData);
   const addUser = useUserStore((state) => state.addUser);
 
-  // Reset form data when dialog is opened
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (open) setFormData(initialFormData);

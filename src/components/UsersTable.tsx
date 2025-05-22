@@ -1,17 +1,18 @@
-import { FC } from "react";
-import { Table, Text, Flex, IconButton } from "@radix-ui/themes";
 import {
   CaretDownIcon,
   CaretUpIcon,
   DragHandleDots2Icon,
 } from "@radix-ui/react-icons";
-import useUserStore from "../store/useUserStore";
-import useUserQueryStore from "../store/useUserQueryStore";
+import { Flex, IconButton, Table, Text } from "@radix-ui/themes";
+import { FC } from "react";
 import useDragAndDrop from "../hooks/useDragAndDrop";
 import useUsers from "../hooks/useUsers";
+import useUserQueryStore from "../store/useUserQueryStore";
+import useUserStore from "../store/useUserStore";
 import DeleteUserDialog from "./DeleteUserDialog";
+import LoadingUsersTableSkeleton from "./LoadingUsersTableSkeleton";
 
-export const UsersTable: FC = () => {
+const UsersTable: FC = () => {
   const { loading } = useUsers();
   const users = useUserStore((state) => state.users);
   const sortUsers = useUserStore((state) => state.sortUsers);
@@ -24,18 +25,6 @@ export const UsersTable: FC = () => {
     setSortDirection(newDirection);
     sortUsers(newDirection);
   };
-
-  if (loading) {
-    return (
-      <Table.Row>
-        <Table.Cell colSpan={3}>
-          <Flex align="center" justify="center" className="py-8">
-            <Text className="text-gray-500">Loading users...</Text>
-          </Flex>
-        </Table.Cell>
-      </Table.Row>
-    );
-  }
 
   return (
     <Table.Root variant="surface">
@@ -61,8 +50,10 @@ export const UsersTable: FC = () => {
           </Table.ColumnHeaderCell>
         </Table.Row>
       </Table.Header>
-      <Table.Body>
-        {users.length === 0 ? (
+      {loading ? (
+        <LoadingUsersTableSkeleton />
+      ) : users.length === 0 ? (
+        <Table.Body>
           <Table.Row>
             <Table.Cell colSpan={3}>
               <Flex
@@ -80,8 +71,10 @@ export const UsersTable: FC = () => {
               </Flex>
             </Table.Cell>
           </Table.Row>
-        ) : (
-          users.map((user, index) => (
+        </Table.Body>
+      ) : (
+        <Table.Body>
+          {users.map((user, index) => (
             <Table.Row
               key={user.id}
               className={`hover:bg-gray-50 ${
@@ -109,9 +102,11 @@ export const UsersTable: FC = () => {
                 </Flex>
               </Table.Cell>
             </Table.Row>
-          ))
-        )}
-      </Table.Body>
+          ))}
+        </Table.Body>
+      )}
     </Table.Root>
   );
 };
+
+export default UsersTable;
