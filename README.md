@@ -35,28 +35,6 @@ A modern user management system built with React and TypeScript, featuring real-
 ### Backend
 - MockAPI for REST endpoints
 
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── CreateUserDialog/
-│   ├── DeleteUserDialog/
-│   ├── SearchUsers/
-│   └── UsersTable/
-├── hooks/
-│   ├── useDragAndDrop.ts
-│   └── useUsers.ts
-├── services/
-│   ├── api-client.ts
-│   └── users-service.ts
-├── store/
-│   ├── useUserStore.ts
-│   └── useUserQueryStore.ts
-└── schemas/
-    └── userSchema.ts
-```
-
 ## Getting Started
 
 1. Clone the repository:
@@ -90,31 +68,3 @@ Available endpoints:
 - `POST /users` - Create a new user
 - `DELETE /users/:id` - Delete a user
 - `GET /users?username=:username` - Search users by username
-
-## Features in Detail
-
-### User Creation
-- Form validation using Zod
-- Real-time username availability check
-- Age validation (18-100)
-- Required field validation
-
-### User Management
-- Drag and drop reordering
-- Sort by age (ascending/descending)
-- Search by username
-- Delete confirmation dialog
-
-### Performance Optimizations
-- Skeleton loading states
-- Optimistic updates
-- Debounced search
-- Local state management with Zustand
-
-## Development Tools
-
-- VS Code
-- React Developer Tools
-- TypeScript
-- Prettier for code formatting
-- ESLint for code quality
