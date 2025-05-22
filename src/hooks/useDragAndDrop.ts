@@ -18,7 +18,6 @@ const useDragAndDrop = () => {
     e.preventDefault();
     if (draggedIndex === null || !previewUsers) return;
 
-    // Update preview only
     const items = [...previewUsers];
     const draggedItem = items[draggedIndex];
     items.splice(draggedIndex, 1);
@@ -29,7 +28,6 @@ const useDragAndDrop = () => {
 
   const handleDragEnd = () => {
     if (draggedIndex !== null && previewUsers) {
-      // Only update the actual store when drop is confirmed
       reorderUsers(users, previewUsers);
     }
     setDraggedIndex(null);

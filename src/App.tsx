@@ -6,7 +6,7 @@ import { UsersTable } from "./components/UsersTable";
 
 const App: FC = () => {
   return (
-    <Container className="py-8">
+    <Container className="py-8 px-4">
       <Flex direction="column" gap="4">
         <Flex justify="between" align="center">
           <Heading size="6">Users List</Heading>
