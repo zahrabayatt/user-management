@@ -2,15 +2,23 @@ import { FC, useState } from "react";
 import { Button, Dialog, Flex, TextField } from "@radix-ui/themes";
 import useUserStore from "../store/useUserStore";
 
+const initialFormData = {
+  firstName: "",
+  lastName: "",
+  username: "",
+  age: "",
+};
+
 const CreateUserDialog: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
-    age: "",
-  });
+  const [formData, setFormData] = useState(initialFormData);
   const addUser = useUserStore((state) => state.addUser);
+
+  // Reset form data when dialog is opened
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (open) setFormData(initialFormData);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +36,8 @@ const CreateUserDialog: FC = () => {
 
       if (response.ok) {
         const newUser = await response.json();
-        addUser(newUser); // Update store directly
-        setIsOpen(false); // Close dialog after success
+        addUser(newUser);
+        setIsOpen(false);
       } else {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -39,7 +47,7 @@ const CreateUserDialog: FC = () => {
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <Dialog.Trigger>
         <Button size="3">Create User</Button>
       </Dialog.Trigger>
