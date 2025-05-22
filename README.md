@@ -1,50 +1,120 @@
-# React + TypeScript + Vite
+# User Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern user management system built with React and TypeScript, featuring real-time CRUD operations and dynamic user interface.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **User Management**
+  - Create, delete users
+  - Filter users by username
+  - Sort users by age
+  - Drag and drop user reordering
+  - Real-time validation and error handling
+  - Loading states and optimistic updates
 
-## Expanding the ESLint configuration
+- **User Interface**
+  - Clean and modern design using Radix UI
+  - Skeleton loading states
+  - Form validation with error messages
+  - Drag and drop functionality
+  - Responsive layout
+  - Confirmation dialogs for destructive actions
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Tech Stack
 
-- Configure the top-level `parserOptions` property like this:
+### Frontend
+- React 18
+- TypeScript
+- Radix UI Components
+- React Hook Form
+- Zod Validation
+- Axios for API calls
+- Zustand for State Management
+- TailwindCSS
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Backend
+- MockAPI for REST endpoints
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── CreateUserDialog/
+│   ├── DeleteUserDialog/
+│   ├── SearchUsers/
+│   └── UsersTable/
+├── hooks/
+│   ├── useDragAndDrop.ts
+│   └── useUsers.ts
+├── services/
+│   ├── api-client.ts
+│   └── users-service.ts
+├── store/
+│   ├── useUserStore.ts
+│   └── useUserQueryStore.ts
+└── schemas/
+    └── userSchema.ts
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Getting Started
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/user-management.git
+cd user-management
 ```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Run the development server:
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) with your browser to see the result.
+
+## API Integration
+
+The project uses MockAPI as its backend. The base URL for the API is:
+
+```
+https://682e10ed746f8ca4a47bc516.mockapi.io/api/v1
+```
+
+Available endpoints:
+- `GET /users` - List all users
+- `POST /users` - Create a new user
+- `DELETE /users/:id` - Delete a user
+- `GET /users?username=:username` - Search users by username
+
+## Features in Detail
+
+### User Creation
+- Form validation using Zod
+- Real-time username availability check
+- Age validation (18-100)
+- Required field validation
+
+### User Management
+- Drag and drop reordering
+- Sort by age (ascending/descending)
+- Search by username
+- Delete confirmation dialog
+
+### Performance Optimizations
+- Skeleton loading states
+- Optimistic updates
+- Debounced search
+- Local state management with Zustand
+
+## Development Tools
+
+- VS Code
+- React Developer Tools
+- TypeScript
+- Prettier for code formatting
+- ESLint for code quality
