@@ -14,8 +14,13 @@ export const UsersTable: FC = () => {
   const users = useUserStore((state) => state.users);
   const sortUsers = useUserStore((state) => state.sortUsers);
   const { userQuery, setSortDirection } = useUserQueryStore();
-  const { draggedIndex, handleDragStart, handleDragOver, handleDragEnd } =
-    useDragAndDrop();
+  const {
+    draggedIndex,
+    previewUsers,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+  } = useDragAndDrop();
 
   const handleSort = () => {
     const newDirection = userQuery.sortDirection === "asc" ? "desc" : "asc";
@@ -36,7 +41,7 @@ export const UsersTable: FC = () => {
         <EmptyState searchQuery={userQuery.searchQuery} />
       ) : (
         <Table.Body>
-          {users.map((user, index) => (
+          {(previewUsers || users).map((user, index) => (
             <UserRow
               key={user.id}
               user={user}
