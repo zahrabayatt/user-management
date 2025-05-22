@@ -25,7 +25,7 @@ const useUserStore = create<UserStore>((set) => ({
         user.id === userId ? { ...user, ...updatedUser } : user
       ),
     })),
-  reorderUsers: (originalUsers, newOrder) => set({ users: newOrder }),
+  reorderUsers: (_, newOrder) => set({ users: newOrder }),
   sortUsers: (direction) =>
     set((state) => ({
       users: [...state.users].sort((a, b) => {
